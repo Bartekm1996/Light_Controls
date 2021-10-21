@@ -1,0 +1,62 @@
+name: lightscontrol
+description: Control Lights.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  window_size:
+    git:
+      url: git://github.com/google/flutter-desktop-embedding.git
+      path: plugins/window_size
+      ref: fd519be1e8398c6b6c2062c2447bac960a71bc02
+  hexcolor: ^2.0.5
+  cupertino_icons: ^1.0.2
+  universal_html: ^2.0.8
+  shared_preferences: ^2.0.2
+  flutter_colorpicker: ^0.6.0
+  url_strategy: ^0.2.0
+  http:
+  syncfusion_flutter_sliders: ^19.3.45
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/fonts/
+
+  fonts:
+    - family: CustomIcons
+      fonts:
+        - asset: assets/fonts/CustomIcons.ttf
+
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+    - family: Poppins-Bold
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+
+    - family: Poppins-Medium
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+          weight: 600
+

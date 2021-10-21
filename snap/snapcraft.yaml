@@ -1,0 +1,27 @@
+name: lightscontrol
+version: 0.1.0
+summary: Controls Lights With Open Hab
+description: Need OpenHab Installed On A Host With Rest Api Weak Secuirty Enable. Currently Only Tested With Yeelight, Xiaomi Mi, Philiphs Hue and Lifx
+confinement: strict
+base: core18
+grade: stable
+
+slots:
+  dbus-lightscontrol: # adjust accordingly to your app name
+    interface: dbus
+    bus: session
+    name: org.bar.lightscontrol # adjust accordingly to your app name and
+
+apps:
+  lightscontrol:
+    command: lightscontrol
+    extensions: [flutter-master]
+    plugs:
+      - network
+    slots:
+      - dbus-lightscontrol
+parts:
+  lightscontrol:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart

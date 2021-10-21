@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Lights Control
+Comment=Control Lights With Open Hab
+Exec=lightscontrol
+Icon=${SNAP}/meta/gui/light.png
+Terminal=false
+Type=Application
+Categories=Education;
