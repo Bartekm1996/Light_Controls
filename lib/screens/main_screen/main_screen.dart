@@ -53,7 +53,7 @@ class _MainScreen extends State<MainScreen>{
                       ),
                       elevation: 0,
                       backgroundColor: Colors.transparent,
-                      child: FirstSetUp(firstSetUp: false),
+                      child: DeviceSettings(),
                     );
                   }
               );
@@ -77,7 +77,7 @@ class _MainScreen extends State<MainScreen>{
                     ),
                   ]
               ),
-              child: LightControlLayout(initialized: true, lights: _lights),
+              child: LightControlLayout(),
             ),
             SizedBox(width: 30),
             Container(

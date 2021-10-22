@@ -1,35 +1,29 @@
 part of screens;
 
-class FirstSetUp extends StatefulWidget{
+class FirstSetUpNetwork extends StatefulWidget{
 
   bool firstSetUp = false;
 
-  FirstSetUp({this.firstSetUp});
+  FirstSetUpNetwork({this.firstSetUp = false});
 
   @override
-  _FirstSetUp createState() => _FirstSetUp();
+  _FirstSetUpNetwork createState() => _FirstSetUpNetwork();
 }
 
-class _FirstSetUp extends State<FirstSetUp>{
+class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
 
-  TextEditingController _passWord = new TextEditingController(text: Device.getPassWord().isNotEmpty ? Device.getPassWord() : '');
-  TextEditingController _userName = new TextEditingController(text: Device.getUserName().isNotEmpty ? Device.getUserName() : '');
   TextEditingController _deviceIp = new TextEditingController(text: Device.getDeviceIp().isNotEmpty ? Device.getDeviceIp() : '');
   TextEditingController _devicePort = new TextEditingController(text:  Device.getDevicePort().isNotEmpty ? Device.getDevicePort() : '');
 
-  bool _password = false;
-  bool _username = false;
   bool _deviceport = false;
   bool _deviceip = false;
-  bool _passwordInvisible = true;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return this.widget.firstSetUp ? Scaffold(
       body: Align(
         alignment: Alignment.center,
         child: Container(
-          padding: const EdgeInsets.only(left: 20, right: 10, bottom: 10, top: 30),
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: Colors.white,
@@ -43,7 +37,7 @@ class _FirstSetUp extends State<FirstSetUp>{
           child: contentBox(context),
         ),
       ),
-    );
+    ) : contentBox(context);
   }
 
   Container contentBox(BuildContext context){
@@ -56,66 +50,6 @@ class _FirstSetUp extends State<FirstSetUp>{
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("User Name",
-                  style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 26)),
-              TextField(
-                onChanged: (text){
-                  if(mounted){
-                    setState(() {
-                      _username = text.isEmpty;
-                    });
-                  }
-                },
-                controller: _userName,
-                decoration: InputDecoration(
-                  hintText: "Enter your email",
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
-                  errorText: _username ? 'User Name Can\'t Be Empty' : null,
-                  errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text("Password",
-                  style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 26)),
-              TextFormField(
-                onChanged: (text){
-                  if(mounted){
-                    setState(() {
-                      _password = text.isEmpty;
-                    });
-                  }
-                },
-                controller: _passWord,
-                obscureText: _passwordInvisible,
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _passwordInvisible = (_passwordInvisible ? false : true);
-                      });
-                    },
-                    icon: Icon(
-                      _passwordInvisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.black,
-                    ),
-                  ),
-                  hintText: "Enter your password",
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
-                  errorText: _password ? 'Password Can\'t Be Empty' : null,
-                  errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
               Text("Smart Hubs Ip Address",
                   style: TextStyle(
                       fontFamily: "Poppins",
@@ -161,22 +95,25 @@ class _FirstSetUp extends State<FirstSetUp>{
               ),
             ],
           ),
-          SizedBox(height: 40),
+          SizedBox(height: 20),
           InkWell(
             onTap: () {
-              if(_devicePort.text.isNotEmpty && _deviceIp.text.isNotEmpty && _passWord.text.isNotEmpty && _userName.text.isNotEmpty) {
+              if(_devicePort.text.isNotEmpty && _deviceIp.text.isNotEmpty) {
 
                 Device.setDeviceIp(_deviceIp.text);
                 Device.setDevicePort(_devicePort.text);
-                Device.setPassWord(_passWord.text);
-                Device.setUserName(_userName.text);
                 Device.setFirstSetUp(false);
 
                 if(this.widget.firstSetUp){
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => MainScreen()));
-                }else{
-                  Navigator.pop(context);
+                      builder: (context) => FirstSetUpCreds(firstSetUp: true)));
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return InfoDialog(title: 'Data Save',description: 'Data Has Been Save Successfully');
+                      }
+                  );
                 }
 
               } else {
@@ -197,21 +134,6 @@ class _FirstSetUp extends State<FirstSetUp>{
                   }
                 }
 
-                if(_userName.text.isEmpty){
-                  if(mounted){
-                    setState(() {
-                      _username = true;
-                    });
-                  }
-                }
-
-                if(_passWord.text.isEmpty){
-                  if(mounted){
-                    setState(() {
-                      _password = true;
-                    });
-                  }
-                }
               }
 
             },
@@ -219,7 +141,7 @@ class _FirstSetUp extends State<FirstSetUp>{
               width: 450,
               height: 60,
               child: Center(
-                child: Text("Save",
+                child: Text(this.widget.firstSetUp ? "Next" : "Save",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

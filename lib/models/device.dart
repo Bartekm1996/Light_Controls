@@ -21,10 +21,10 @@ class Device{
 
     if(sharedPreferences.containsKey('device_ip')) {
       try {
-        _deviceIp = sharedPreferences.getString('device_ip');
-        _devicePort = sharedPreferences.getString('device_port');
-        _userName = sharedPreferences.getString('username');
-        _passWord = sharedPreferences.getString('password');
+        _deviceIp = sharedPreferences.getString('device_ip') == null ? '' : sharedPreferences.getString('device_ip');
+        _devicePort = sharedPreferences.getString('device_port') == null ? '' : sharedPreferences.getString('device_port');
+        _userName = sharedPreferences.getString('username') == null ? '' : sharedPreferences.getString('username');
+        _passWord = sharedPreferences.getString('password')  == null ? '' : sharedPreferences.getString('password');
         _firstSetUp = sharedPreferences.getBool('first_set_up') == null ? true : sharedPreferences.getBool('first_set_up');
       } catch (e) {
 

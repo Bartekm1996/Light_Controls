@@ -1,15 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lightscontrol/api/room_controls.dart';
 import 'package:lightscontrol/models/thing.dart';
 import 'package:lightscontrol/widgets/device_card.dart';
 
 class LightControlLayout extends StatefulWidget{
 
-  List<Thing> lights = [];
-  bool initialized = false;
-
-
-  LightControlLayout({this.lights, this.initialized});
 
   @override
   _LightControlLayout createState() => _LightControlLayout();
@@ -17,10 +13,20 @@ class LightControlLayout extends StatefulWidget{
 
 class _LightControlLayout extends State<LightControlLayout>{
 
+  List<Thing> _lights = [];
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
+    RoomControlsApi.getThingsByType().then((value){
+      if(mounted) {
+        setState(() {
+          _lights = value;
+          _initialized = true;
+        });
+      }
+    });
   }
 
   @override
@@ -32,7 +38,7 @@ class _LightControlLayout extends State<LightControlLayout>{
             child:  SingleChildScrollView(
               child: Column(
                 children: [
-                  if(!this.widget.initialized)
+                  if(!_initialized)
                     Align(
                       alignment: Alignment.center,
                       child: Container(
@@ -43,17 +49,19 @@ class _LightControlLayout extends State<LightControlLayout>{
                         ),
                       ),
                     ),
-                  if(this.widget.initialized)
+                  if(_initialized)
                     Container(
-                      height: 150,
                       width: 400,
-                      child: this.widget.lights.isNotEmpty ? ListView.builder(
+                      child: _lights.isNotEmpty ? SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: GridView.count(
                           shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: this.widget.lights.length,
-                          itemBuilder: (BuildContext ctxt, int index) {
-                            return DeviceCard(thing: this.widget.lights[index]);
-                          }
+                          primary: false,
+                          crossAxisSpacing: 25,
+                          mainAxisSpacing: 25,
+                          crossAxisCount: 2,
+                          children: _getCards(),
+                        ),
                       ) : Align(child: Text('No Bulbs Added', style: TextStyle(fontFamily: 'Poppins', fontSize: 20)), alignment: Alignment.center),
                     ),
                   SizedBox(height: 10),
@@ -65,6 +73,16 @@ class _LightControlLayout extends State<LightControlLayout>{
         ],
       ),
     );
+  }
+
+  List<DeviceCard> _getCards(){
+    List<DeviceCard> cards = [];
+
+    for(var i = 0; i < _lights.length; i++){
+      cards.add(DeviceCard(thing: _lights[i]));
+    }
+
+    return cards;
   }
 
 }

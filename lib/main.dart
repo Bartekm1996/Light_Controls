@@ -41,7 +41,7 @@ class _MyApp extends State<MyApp>{
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Device.isFirstSetUp() ? FirstSetUp(firstSetUp: true) : MainScreen(),
+      home: Device.isFirstSetUp() ? FirstSetUpNetwork(firstSetUp: true) : MainScreen(),
     );
   }
 }

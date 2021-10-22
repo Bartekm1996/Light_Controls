@@ -38,26 +38,42 @@ class RoomControlsApi{
     String credentials = Device.getUserName() + ':' + Device.getPassWord();
     String _deviceAddress = Device.getDeviceAddress();
 
+
+
     Codec<String, String> stringToBase64 = utf8.fuse(base64);
     String encoded = stringToBase64.encode(credentials);
 
     List<Thing> devices = [];
     List<String> channels = [];
 
-    var js = jsonDecode((await http.get(Uri.parse("http://$_deviceAddress/rest/things"), headers: {
-      "Accept": "application/json",
-      "Authorization": "Basic $encoded",
-    })).body);
+    try {
+      var js = jsonDecode((await http.get(
+          Uri.parse("http://$_deviceAddress/rest/things"), headers: {
+        "Accept": "application/json",
+        "Authorization": "Basic $encoded",
+      })).body);
 
 
-    for(var i = 0; i < js.length; i++){
-
-      if((js[i]['label'].toLowerCase()).contains("Bulb".toLowerCase()) || (js[i]['properties']['productName'] != null ? (js[i]['properties']['productName']).contains('light') : false) || js[i]['configuration']['lightId'] != null){
-        for(var j = 0; j < js[i]['channels'].length; j++){
-          channels.add(js[i]['channels'][j]['label']);
+      if (js != null) {
+        for (var i = 0; i < js.length; i++) {
+          if ((js[i]['label'].toLowerCase()).contains("Bulb".toLowerCase()) ||
+              (js[i]['properties']['productName'] != null
+                  ? (js[i]['properties']['productName']).contains('light')
+                  : false) || js[i]['configuration']['lightId'] != null) {
+            for (var j = 0; j < js[i]['channels'].length; j++) {
+              channels.add(js[i]['channels'][j]['label']);
+            }
+            devices.add(new Thing(js[i]['UID'], js[i]['label'],
+                channels.contains('Power') ? 'Power' : channels.contains(
+                    'Brightness') ? 'Brightness' : 'Color',
+                channels.contains('Color') ? 'Color' : 'RGBColor',
+                channels.contains('Brightness')
+                    ? 'Brightness'
+                    : 'Temperature'));
+          }
         }
-        devices.add(new Thing(js[i]['UID'], js[i]['label'], channels.contains('Power') ? 'Power' : channels.contains('Brightness') ? 'Brightness' : 'Color', channels.contains('Color') ? 'Color' : 'RGBColor', channels.contains('Brightness') ? 'Brightness' : 'Temperature' ));
       }
+    }catch(e){
 
     }
 
@@ -109,7 +125,7 @@ class RoomControlsApi{
         Uri.parse('http://$_deviceAddress/rest/items/$name' + '_' + '$attr'),
         headers: {
           'Content-Type': 'text/plain',
-          'Accept': 'application/json',
+          'Accept': '*/*',
         },
         body: '$val'
     );
