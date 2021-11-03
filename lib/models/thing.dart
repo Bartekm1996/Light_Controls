@@ -5,7 +5,8 @@ class Thing{
   final String action;
   final String colorLabel;
   final String brightnessLabel;
+  final List<String> actions;
 
-  Thing(this.uid, this.label, this.action, this.colorLabel, this.brightnessLabel);
+  Thing(this.uid, this.label, this.action, this.colorLabel, this.brightnessLabel, this.actions);
 
 }

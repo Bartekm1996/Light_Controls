@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'dart:math' as math;
+part of widgets;
 
 @immutable
 class ExpandableFab extends StatefulWidget {

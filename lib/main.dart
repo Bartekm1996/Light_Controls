@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'package:lightscontrol/models/device.dart';
 import 'package:lightscontrol/screens/screens.dart';
-import 'package:url_strategy/url_strategy.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
+
   if(kIsWeb){
     setPathUrlStrategy();
   }
 
   WidgetsFlutterBinding.ensureInitialized();
   Device.initPrefs();
+  sqfliteFfiInit();
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
       .then((_) {
     runApp(MyApp());

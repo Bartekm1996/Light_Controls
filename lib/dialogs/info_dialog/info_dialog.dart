@@ -38,11 +38,11 @@ class InfoDialog extends StatelessWidget {
           ]
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(this.title,style: TextStyle(fontSize: 22,fontWeight: FontWeight.w600),),
           SizedBox(height: 15,),
-          Text(this.description,style: TextStyle(fontSize: 14),textAlign: TextAlign.center,),
+          Text(this.description, style: TextStyle(fontSize: 14, height: 1.5),textAlign: TextAlign.center,),
           SizedBox(height: 22,),
           if(cancelButton)
             Align(

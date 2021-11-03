@@ -12,8 +12,8 @@ class FirstSetUpCreds extends StatefulWidget{
 
 class _FirstSetUpCreds extends State<FirstSetUpCreds>{
 
-  TextEditingController _passWord = new TextEditingController(text: Device.getPassWord().isNotEmpty ? Device.getPassWord() : '');
-  TextEditingController _userName = new TextEditingController(text: Device.getUserName().isNotEmpty ? Device.getUserName() : '');
+  TextEditingController _passWord = new TextEditingController(text: Device.getPassWord());
+  TextEditingController _userName = new TextEditingController(text: Device.getUserName());
 
   bool _password = false;
   bool _username = false;
@@ -22,23 +22,46 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
   @override
   Widget build(BuildContext context) {
     return this.widget.firstSetUp ? Scaffold(
+      backgroundColor: Colors.white,
       body: Align(
         alignment: Alignment.center,
         child: Container(
+          width: MediaQuery.of(context).size.width/2,
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(color: Colors.black,offset: Offset(0,10),
-                    blurRadius: 10
-                ),
-              ]
           ),
           child: contentBox(context),
         ),
       ),
     ) : contentBox(context);
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+    _passWord?.dispose();
+    _userName?.dispose();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    Device.userName.stream.listen((event) {
+      if(mounted){
+        setState(() {
+          _userName.text = event;
+        });
+      }
+    });
+
+    Device.passWord.stream.listen((event) {
+      if(mounted){
+        setState(() {
+          _passWord.text = event;
+        });
+      }
+    });
   }
 
   Container contentBox(BuildContext context){
@@ -54,7 +77,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
               Text("User Name",
                   style: TextStyle(
                       fontFamily: "Poppins",
-                      fontSize: 26)),
+                      fontSize: 20)),
               TextField(
                 onChanged: (text){
                   if(mounted){
@@ -65,7 +88,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
                 },
                 controller: _userName,
                 decoration: InputDecoration(
-                  hintText: "Enter your email",
+                  hintText: "Enter Smarts Hub Email",
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
                   errorText: _username ? 'User Name Can\'t Be Empty' : null,
                   errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
@@ -91,9 +114,12 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
                 decoration: InputDecoration(
                   suffixIcon: IconButton(
                     onPressed: () {
-                      setState(() {
-                        _passwordInvisible = (_passwordInvisible ? false : true);
-                      });
+                      if(mounted) {
+                        setState(() {
+                          _passwordInvisible =
+                          (_passwordInvisible ? false : true);
+                        });
+                      }
                     },
                     icon: Icon(
                       _passwordInvisible
@@ -102,7 +128,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
                       color: Colors.black,
                     ),
                   ),
-                  hintText: "Enter your password",
+                  hintText: "Enter Smarts Hub Password",
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
                   errorText: _password ? 'Password Can\'t Be Empty' : null,
                   errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
@@ -111,72 +137,73 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
               SizedBox(
                 height: 20,
               ),
-              InkWell(
-              onTap: () {
-                if(_passWord.text.isNotEmpty && _userName.text.isNotEmpty) {
+            ],
+          ),
 
-                  Device.setPassWord(_passWord.text);
-                  Device.setUserName(_userName.text);
+          InkWell(
+            onTap: () {
+              if(_passWord.text.isNotEmpty && _userName.text.isNotEmpty) {
 
-                  if(this.widget.firstSetUp){
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => MainScreen()));
-                  }else {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return InfoDialog(title: 'Data Save',description: 'Data Has Been Save Successfully');
-                        }
-                    );
-                  }
+                Device.setPassWord(_passWord.text);
+                Device.setUserName(_userName.text);
 
-                } else {
+                if(this.widget.firstSetUp){
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => MainScreen()));
+                }else {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return InfoDialog(title: 'Data Save',description: 'Data Has Been Save Successfully');
+                      }
+                  );
+                }
+
+              } else {
 
 
-                  if(_userName.text.isEmpty){
-                    if(mounted){
-                      setState(() {
-                        _username = true;
-                      });
-                    }
-                  }
-
-                  if(_passWord.text.isEmpty){
-                    if(mounted){
-                      setState(() {
-                        _password = true;
-                      });
-                    }
+                if(_userName.text.isEmpty){
+                  if(mounted){
+                    setState(() {
+                      _username = true;
+                    });
                   }
                 }
 
-              },
-              child: Container(
-                width: 450,
-                height: 60,
-                child: Center(
-                  child: Text("Save",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: "Poppins-Bold",
-                          fontSize: 30,
-                          letterSpacing: 1.0)),
-                ),
-                decoration: BoxDecoration(
-                    color: kPrimaryColor,
-                    borderRadius: BorderRadius.circular(6.0),
-                    boxShadow: [
-                      BoxShadow(
-                          color: kActiveShadowColor,
-                          offset: Offset(0.0, 8.0),
-                          blurRadius: 8.0)
-                    ]),
+                if(_passWord.text.isEmpty){
+                  if(mounted){
+                    setState(() {
+                      _password = true;
+                    });
+                  }
+                }
+              }
 
+            },
+            child: Container(
+              width: 350,
+              height: 60,
+              child: Center(
+                child: Text("Save",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Poppins-Bold",
+                        fontSize: 20,
+                        letterSpacing: 1.0)),
               ),
+              decoration: BoxDecoration(
+                  color: kPrimaryColor,
+                  borderRadius: BorderRadius.circular(6.0),
+                  boxShadow: [
+                    BoxShadow(
+                        color: kActiveShadowColor,
+                        offset: Offset(0.0, 8.0),
+                        blurRadius: 8.0)
+                  ]),
+
             ),
-          ],
-         ),
+          ),
         ],
       ),
     );

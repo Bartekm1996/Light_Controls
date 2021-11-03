@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:lightscontrol/models/device.dart';
 import 'package:lightscontrol/models/thing.dart';
+import 'package:lightscontrol/models/asset.dart';
+import 'package:lightscontrol/models/device.dart';
+
 
 class RoomControlsApi{
 
@@ -33,43 +35,71 @@ class RoomControlsApi{
     return devices;
   }
 
-  static Future<List<Thing>> getThingsByType() async{
+  static Future<Asset> getThingByType(String uid) async{
 
-    String credentials = Device.getUserName() + ':' + Device.getPassWord();
     String _deviceAddress = Device.getDeviceAddress();
 
+    Asset _asset;
 
+    try {
 
-    Codec<String, String> stringToBase64 = utf8.fuse(base64);
-    String encoded = stringToBase64.encode(credentials);
+      var js = jsonDecode((await http.get(
+          Uri.parse("http://$_deviceAddress/rest/things/$uid"), headers: {
+        "Accept": "application/json",
+        "Authorization": "Basic " + Device.encodedCreds(),
+      })).body);
+
+      if (js != null) {
+        _asset = new Asset(js['label'], js['properties']['vendorName'] ?? js['properties']['vendor'], js['properties']['productName'] ?? '',  js['properties']['productId'] ?? js['properties']['modelId'], js['statusInfo']['status'], js['statusInfo']['statusDetail'], statusDescription: js['statusInfo']['description'] != null ? js['statusInfo']['description'] : null);
+      }
+
+    }catch(e){
+
+    }
+
+    return _asset;
+  }
+
+  static Future<dynamic> getThingsByType() async{
+
+    String _deviceAddress = Device.getDeviceAddress();
 
     List<Thing> devices = [];
     List<String> channels = [];
 
     try {
+
       var js = jsonDecode((await http.get(
           Uri.parse("http://$_deviceAddress/rest/things"), headers: {
         "Accept": "application/json",
-        "Authorization": "Basic $encoded",
+        "Authorization": "Basic " + Device.encodedCreds(),
       })).body);
 
 
+      if(js[0] == null)return js;
+
       if (js != null) {
+
         for (var i = 0; i < js.length; i++) {
+
           if ((js[i]['label'].toLowerCase()).contains("Bulb".toLowerCase()) ||
               (js[i]['properties']['productName'] != null
                   ? (js[i]['properties']['productName']).contains('light')
                   : false) || js[i]['configuration']['lightId'] != null) {
+
             for (var j = 0; j < js[i]['channels'].length; j++) {
               channels.add(js[i]['channels'][j]['label']);
             }
+
             devices.add(new Thing(js[i]['UID'], js[i]['label'],
                 channels.contains('Power') ? 'Power' : channels.contains(
                     'Brightness') ? 'Brightness' : 'Color',
-                channels.contains('Color') ? 'Color' : 'RGBColor',
+                channels.contains('Color') ? 'Color' : channels.contains('RGBColor') ? 'RGBColor' : null,
                 channels.contains('Brightness')
                     ? 'Brightness'
-                    : 'Temperature'));
+                    : 'Temperature', channels));
+
+            channels.clear();
           }
         }
       }
@@ -84,7 +114,7 @@ class RoomControlsApi{
 
     String _deviceAddress = Device.getDeviceAddress();
     var tmp;
-    var js = jsonDecode((await http.get(Uri.parse("http://$_deviceAddress/rest/items"), headers: {"Accept": "application/json"})).body);
+    var js = jsonDecode((await http.get(Uri.parse("https://$_deviceAddress/rest/items"), headers: {"Accept": "application/json"})).body);
 
     for(var i = 0; i < js.length; i++){
       if(js[i]['name'].contains(type)){
@@ -145,5 +175,34 @@ class RoomControlsApi{
     return js['state'];
   }
 
+
+  static Future<dynamic> getThingState(String name) async{
+
+    String _deviceAddress = Device.getDeviceAddress();
+
+
+    var js = jsonDecode((await http.get(
+      Uri.parse('http://$_deviceAddress/rest/things/$name'),
+      headers: {
+        "Accept": "application/json",
+        "Authorization": "Basic " + Device.encodedCreds(),
+      },
+    )).body);
+
+    return js;
+  }
+
+
+  static Future<dynamic> hubExists(String ipAddr) async{
+
+    String _deviceIp = ipAddr+':'+Device.getDevicePort();
+
+    return await http.get(
+      Uri.parse('http://$_deviceIp/rest/items'),
+      headers: {
+        "Accept": "application/json",
+      },
+    );
+  }
 
 }

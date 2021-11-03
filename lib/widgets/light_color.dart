@@ -1,15 +1,9 @@
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:lightscontrol/api/room_controls.dart';
-import 'package:lightscontrol/models/thing.dart';
-
+part of widgets;
 
 class LightColor extends StatefulWidget{
 
-  Thing singleItem;
-  List<Thing> things;
+  final Thing singleItem;
+  final List<Thing> things;
 
   LightColor({this.things, this.singleItem});
 
@@ -31,17 +25,27 @@ class _LightColor extends State<LightColor>{
     if(this.widget.singleItem != null){
       RoomControlsApi.getState(this.widget.singleItem.label.replaceAll(" ", "") + '_' + this.widget.singleItem.colorLabel).then((value){
         List<String> splt = value.split(",");
-        _pickerColor = Color.fromARGB(0, int.parse(splt[0]), int.parse(splt[1]), int.parse(splt[2]));
+        setState(() {
+          if(mounted) {
+            _pickerColor = Color.fromARGB(
+                0, double.parse(splt[0]).round(), int.parse(splt[1]),
+                int.parse(splt[2]));
+          }
+        });
       });
     }else{
       if(this.widget.things.isNotEmpty) {
         RoomControlsApi.getState(
             this.widget.things[0].label.replaceAll(" ", "") + '_' +
                 this.widget.things[0].colorLabel).then((value) {
-          List<String> splt = value.split(",");
-          _pickerColor = Color.fromARGB(
-              0, double.parse(splt[0]).round(), int.parse(splt[1]),
-              int.parse(splt[2]));
+                  if(mounted) {
+                    setState(() {
+                      List<String> splt = value.split(",");
+                      _pickerColor = Color.fromARGB(
+                          0, double.parse(splt[0]).round(), int.parse(splt[1]),
+                          int.parse(splt[2]));
+                    });
+                  }
         });
       }
     }
@@ -63,60 +67,62 @@ class _LightColor extends State<LightColor>{
     );
   }
 
-  Stack contentBox(BuildContext context){
-    return Stack(
-      children: <Widget>[
-        Container(
-          width: 500,
-          height: 270,
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(40),
-              boxShadow: [
-                BoxShadow(color: Colors.black,offset: Offset(0,10),
-                    blurRadius: 10
-                ),
-              ]
+  Container contentBox(BuildContext context){
+    return Container(
+      width: 280,
+      height: 300,
+      decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(40),
+          boxShadow: [
+            BoxShadow(color: Colors.black,offset: Offset(0,10),
+                blurRadius: 10
+            ),
+          ]
+      ),
+      child: Column(
+        children: [
+          SlidePicker(
+            pickerColor: _pickerColor,
+            onColorChanged: (color){
+              if(mounted) {
+                setState(() {
+                  _pickerColor = color;
+                });
+              }
+            },
+            paletteType: PaletteType.hsv,
+            enableAlpha: true,
+            displayThumbColor: true,
+            showLabel: false,
+            showIndicator: true,
+            indicatorBorderRadius:
+            const BorderRadius.vertical(
+              top: const Radius.circular(25.0),
+            ),
           ),
-          child: Column(
-            children: [
-              ColorPicker(
-                pickerColor: _pickerColor,
-                onColorChanged: (color){
-                  if(mounted) {
-                    setState(() {
-                      _pickerColor = color;
-                    });
-                  }
-                },
-                showLabel: true,
-                pickerAreaHeightPercent: 0.8,
-              ),
-
-              SizedBox(
-                height: 10,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  child: TextButton(onPressed: (){
-                    HSVColor color = HSVColor.fromColor(_pickerColor);
-
-                    if(this.widget.singleItem != null){
-                      setColorToBulb(color);
-                    }else{
-                      setColorToAll(color);
-                    }
-
-                    }, child: Text('Set Color', style: TextStyle(fontSize: 20, fontFamily: 'Poppins'))),
-                  padding: EdgeInsets.only(right: 15),
-                ),
-              ),
-            ],
+          SizedBox(
+            height: 10,
           ),
-        ),
-      ],
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              child: TextButton(onPressed: (){
+                HSVColor color = HSVColor.fromColor(_pickerColor);
+
+                if(this.widget.singleItem != null){
+                  setColorToBulb(color);
+                }else{
+                  setColorToAll(color);
+                }
+
+              }, child: Text('Set Color', style: TextStyle(fontSize: 20, fontFamily: 'Poppins'))),
+              padding: EdgeInsets.only(right: 15),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

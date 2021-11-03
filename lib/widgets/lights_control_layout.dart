@@ -1,8 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:lightscontrol/api/room_controls.dart';
-import 'package:lightscontrol/models/thing.dart';
-import 'package:lightscontrol/widgets/device_card.dart';
+part of widgets;
 
 class LightControlLayout extends StatefulWidget{
 
@@ -13,29 +9,63 @@ class LightControlLayout extends StatefulWidget{
 
 class _LightControlLayout extends State<LightControlLayout>{
 
+
+  final ScrollController _scrollController = ScrollController();
+
   List<Thing> _lights = [];
   bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    RoomControlsApi.getThingsByType().then((value){
-      if(mounted) {
-        setState(() {
-          _lights = value;
-          _initialized = true;
-        });
+    getThings();
+  }
+
+
+  void getThings(){
+    RoomControlsApi.getThingsByType().then((value) {
+      try {
+        if (value['error'] != null) {
+          if (value['error']['http-code'] == 401) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return InfoDialog(title: 'Invalid Credentials',
+                      description: 'Provided Login Details Are Invalid. Change Them In Settings');
+                }
+            );
+          }
+        }
+      } catch (e) {
+        if(mounted) {
+          setState(() {
+            Lights.addToLights(cast<List<Thing>>(value));
+            _lights = cast<List<Thing>>(value);
+            _initialized = true;
+          });
+        }
       }
     });
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _scrollController?.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
+      width: 400,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Expanded(
-            child:  SingleChildScrollView(
+          if(_lights.isEmpty)
+            Align(child: Text('No Bulbs Added\n\nCheck If OpenHab Hub Is Reachable', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Poppins', fontSize: 20)), alignment: Alignment.center),
+          if(_lights.isNotEmpty)
+            SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
                 children: [
                   if(!_initialized)
@@ -52,24 +82,35 @@ class _LightControlLayout extends State<LightControlLayout>{
                   if(_initialized)
                     Container(
                       width: 400,
-                      child: _lights.isNotEmpty ? SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: GridView.count(
-                          shrinkWrap: true,
-                          primary: false,
-                          crossAxisSpacing: 25,
-                          mainAxisSpacing: 25,
-                          crossAxisCount: 2,
-                          children: _getCards(),
-                        ),
-                      ) : Align(child: Text('No Bulbs Added', style: TextStyle(fontFamily: 'Poppins', fontSize: 20)), alignment: Alignment.center),
+                      child:  GridView.count(
+                        shrinkWrap: true,
+                        primary: false,
+                        crossAxisSpacing: 25,
+                        mainAxisSpacing: 25,
+                        crossAxisCount: 2,
+                        children: _getCards(),
+                      ),
                     ),
                   SizedBox(height: 10),
                 ],
               ),
               scrollDirection: Axis.vertical,
             ),
-          ),
+            Align(child:Container(
+                child: ElevatedButton(
+                  onPressed: () {
+                    getThings();
+                  },
+                  child: Icon(Icons.refresh),
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(CircleBorder()),
+                    padding: MaterialStateProperty.all(EdgeInsets.all(20)),
+                    backgroundColor: MaterialStateProperty.all(Colors.blue), // <-- Button color
+                  ),
+                ),
+                alignment: Alignment.bottomLeft,
+              ),
+            ),
         ],
       ),
     );
@@ -85,4 +126,5 @@ class _LightControlLayout extends State<LightControlLayout>{
     return cards;
   }
 
+  T cast<T>(x) => x is T ? x : null;
 }

@@ -1,23 +1,8 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:lightscontrol/api/room_controls.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:lightscontrol/models/device.dart';
-import 'package:lightscontrol/models/thing.dart';
-import 'package:lightscontrol/utils/constants.dart';
-import 'package:lightscontrol/widgets/light_color.dart';
-import 'package:universal_html/html.dart' as html;
-
-
+part of widgets;
 
 class DeviceCard extends StatefulWidget{
 
-  //final String type;
   final Thing thing;
-  //final dynamic device;
-
 
   DeviceCard({this.thing});
 
@@ -29,33 +14,65 @@ class DeviceCard extends StatefulWidget{
 
 class _DeviceCard extends State<DeviceCard>{
 
+  StreamSubscription<DataConnectionStatus> _dataConnectionChecker;
+
   html.EventSource _eventSourcePower;
   html.EventSource _itemOnlineStatus;
 
-
+  Asset _asset = new Asset('','','', '', '', '', statusDescription:  '');
 
   bool _on = false;
   bool _error = false;
+  bool _connectionStatus = false;
   String _errorMessage = "";
   String _deviceAddress = Device.getDeviceAddress();
 
   @override
   void initState() {
     super.initState();
+
+    SqlUtils.createDb(this.widget.thing.uid.replaceAll(":",""));
+
+    _dataConnectionChecker = DataConnectionChecker().onStatusChange.listen((event) {
+      setState(() {
+        _connectionStatus == DataConnectionStatus.connected;
+      });
+    });
+
+    RoomControlsApi.getThingByType(this.widget.thing.uid).then((value) {
+        setState(() {
+          _asset = value;
+        });
+    });
+
     RoomControlsApi.getState(this.widget.thing.label.replaceAll(" ", "")+"_"+this.widget.thing.action).then((value) {
-      if(mounted) {
+      try {
         setState(() {
           _on =
           (this.widget.thing.action == 'Power' ? value == 'ON' : this.widget
               .thing.action == 'Brightness' ? int.parse(value) > 0 : int.parse(
               value.split(',')[2]) > 0);
         });
+      }catch(e){
+
+      }
+    });
+
+    RoomControlsApi.getThingState(this.widget.thing.uid).then((value){
+      try {
+        setState(() {
+          _error = value['statusInfo']['status'] == "OFFLINE";
+          _errorMessage = value['statusInfo']['statusDetail'] == "NONE"
+              ? value['statusInfo']['description']
+              : value['statusInfo']['statusDetail'];
+        });
+      }catch(e){
+
       }
     });
 
     eventSourcePower();
-
-
+    onlineStatusListener();
 
   }
 
@@ -65,10 +82,23 @@ class _DeviceCard extends State<DeviceCard>{
     _itemOnlineStatus = html.EventSource('http://$_deviceAddress/rest/events?topics=openhab/things/'+this.widget.thing.uid+'/status');
 
     _itemOnlineStatus.addEventListener('message', (html.Event message) {
-      setState(() {
-        _error = (jsonDecode(jsonDecode((message as html.MessageEvent).data as String)['payload'])['status']) != 'ONLINE';
-        _errorMessage = (jsonDecode(jsonDecode((message as html.MessageEvent).data as String)['payload'])['statusDetail']);
-      });
+
+        setState(() {
+          try {
+
+
+            _error = (jsonDecode(jsonDecode((message as html.MessageEvent)
+                .data as String)['payload'])['status']) != 'ONLINE';
+
+
+            _errorMessage =
+            (jsonDecode(jsonDecode((message as html.MessageEvent)
+                .data as String)['payload'])['statusDetail']);
+
+          }catch(e){
+
+          }
+        });
 
     });
 
@@ -79,7 +109,6 @@ class _DeviceCard extends State<DeviceCard>{
 
   }
 
-
   void eventSourcePower() async{
 
     var js;
@@ -87,17 +116,25 @@ class _DeviceCard extends State<DeviceCard>{
 
 
     _eventSourcePower.addEventListener('message', (html.Event message) {
-
-      if(mounted) {
         setState(() {
-          js = jsonDecode(jsonDecode((message as html.MessageEvent)
-              .data as String)['payload'])['value'];
-          _on =
-          (this.widget.thing.action == 'Power' ? js == 'ON' : this.widget.thing
-              .action == 'Brightness' ? int.parse(js) > 0 : int.parse(
-              js.split(',')[2]) > 0);
+          try {
+
+            js = jsonDecode(jsonDecode((message as html.MessageEvent)
+                .data as String)['payload'])['value'];
+
+
+            SqlUtils.insert(this.widget.thing.uid.replaceAll(":", ""),(message as html.MessageEvent)
+                .data as String);
+
+            _on =
+            (this.widget.thing.action == 'Power' ? js == 'ON' : this.widget
+                .thing
+                .action == 'Brightness' ? int.parse(js) > 0 : int.parse(
+                js.split(',')[2]) > 0);
+          }catch(e){
+
+          }
         });
-      }
 
     });
 
@@ -109,12 +146,12 @@ class _DeviceCard extends State<DeviceCard>{
 
   }
 
-
   @override
   void dispose() {
     super.dispose();
     _eventSourcePower?.close();
     _itemOnlineStatus?.close();
+    _dataConnectionChecker?.cancel();
   }
 
   @override
@@ -122,14 +159,13 @@ class _DeviceCard extends State<DeviceCard>{
     return Card(
       child: InkWell(
         onTap: (){
-          var js = _on ? (this.widget.thing.action == 'Power' ? 'OFF' : this.widget.thing.action == 'Brightness' ? 0 : '0.0,0,0') : (this.widget.thing.action == 'Power' ? 'ON' : this.widget.thing.action == 'Brightness' ? 100 : '0.0,0,100');
-          RoomControlsApi.setState(this.widget.thing.label.replaceAll(" ", ""), this.widget.thing.action, js);
+          RoomControlsApi.setState(this.widget.thing.label.replaceAll(" ", ""), this.widget.thing.action, _on);
         },
         onLongPress: (){
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return LightColor(singleItem: this.widget.thing);
+                return BulbDialog(thing: this.widget.thing, asset: _asset);
               }
           );
         },
@@ -141,29 +177,49 @@ class _DeviceCard extends State<DeviceCard>{
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
             color: Colors.white,
-            borderRadius: BorderRadius.circular(padding),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lightbulb_outline, size: 60,
-                  color: _on
-                      ? Colors.yellow.shade800
-                      : Colors.black),
-              SizedBox(height: 10),
-              RichText(
-                text: TextSpan(
-                  text: this.widget.thing.label,
-                  style: TextStyle(color: Colors.black),
-                ),
-                overflow: TextOverflow.ellipsis,
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(icon: Icon(Icons.info_outline, color: (_error || _connectionStatus ? Colors.red :Colors.transparent)), onPressed: (){
+                  if(_error) {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return InfoDialog(title: _asset.status,
+                              description: _asset.statusDescription != null
+                                  ? _asset.statusDescription.toUpperCase()
+                                  : _asset.statusInfo.toUpperCase());
+                        }
+                    );
+                  }
+                }),
               ),
-
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.lightbulb_outline, size: 60,
+                      color: _on
+                          ? (_error || _connectionStatus ? Colors.black : Colors.yellow.shade800)
+                          : Colors.black),
+                  SizedBox(height: 10),
+                  RichText(
+                    text: TextSpan(
+                      text: this.widget.thing.label,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
+
 }

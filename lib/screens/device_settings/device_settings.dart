@@ -8,13 +8,20 @@ class DeviceSettings extends StatefulWidget{
 
 class _DeviceSettings extends State<DeviceSettings> with SingleTickerProviderStateMixin {
 
+  final ScrollController _scrollController = new ScrollController();
+
   int _selectedIndex = 0;
 
 
   @override
   void initState() {
     super.initState();
-    print(Device.getDeviceAddress());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController?.dispose();
   }
 
   @override
@@ -31,7 +38,7 @@ class _DeviceSettings extends State<DeviceSettings> with SingleTickerProviderSta
 
   contentBox(context){
     return Container(
-      width: 550,
+      width: 500,
       height: 600,
       decoration: BoxDecoration(
           shape: BoxShape.rectangle,
@@ -45,24 +52,26 @@ class _DeviceSettings extends State<DeviceSettings> with SingleTickerProviderSta
       ),
       child: Row(
         children: <Widget>[
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (int index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            labelType: NavigationRailLabelType.selected,
-            destinations: [
-              NavigationRailDestination(
-                icon: Icon(Icons.network_check_rounded),
-                label: Text('Network'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.person),
-                label: Text('Credientials'),
-              ),
-            ],
+          Container(
+            child: NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (int index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+              labelType: NavigationRailLabelType.selected,
+              destinations: [
+                NavigationRailDestination(
+                  icon: Icon(Icons.network_check_rounded),
+                  label: Text('Network'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.person),
+                  label: Text('Credentials'),
+                ),
+              ],
+            ),
           ),
           VerticalDivider(thickness: 1, width: 1),
           Expanded(
@@ -78,9 +87,15 @@ class _DeviceSettings extends State<DeviceSettings> with SingleTickerProviderSta
                   child: Column(
                     children: [
                       if(_selectedIndex == 0)
-                        FirstSetUpNetwork(firstSetUp: false),
+                        Container(
+                          child: FirstSetUpNetwork(firstSetUp: false),
+                          width: 350,
+                        ),
                       if(_selectedIndex == 1)
-                        FirstSetUpCreds(firstSetUp: false),
+                        Container(
+                          child: FirstSetUpCreds(firstSetUp: false),
+                          width: 350,
+                        ),
                     ],
                   ),
                 ),

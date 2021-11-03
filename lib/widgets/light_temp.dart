@@ -1,9 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:lightscontrol/api/room_controls.dart';
-import 'package:lightscontrol/models/thing.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-
+part of widgets;
 
 class LightTemp extends StatefulWidget{
 

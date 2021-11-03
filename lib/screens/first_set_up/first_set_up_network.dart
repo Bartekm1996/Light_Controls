@@ -12,32 +12,46 @@ class FirstSetUpNetwork extends StatefulWidget{
 
 class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
 
-  TextEditingController _deviceIp = new TextEditingController(text: Device.getDeviceIp().isNotEmpty ? Device.getDeviceIp() : '');
-  TextEditingController _devicePort = new TextEditingController(text:  Device.getDevicePort().isNotEmpty ? Device.getDevicePort() : '');
+  TextEditingController _deviceIp = new TextEditingController(text: Device.getDeviceIp());
 
-  bool _deviceport = false;
+  List<String> _errors = ['Ip Address Can\'t Be Empty', 'Invalid Ip Address'];
+  String _errorText = "";
   bool _deviceip = false;
 
   @override
   Widget build(BuildContext context) {
     return this.widget.firstSetUp ? Scaffold(
+      backgroundColor: Colors.white,
       body: Align(
         alignment: Alignment.center,
         child: Container(
+          width: MediaQuery.of(context).size.width/2,
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(color: Colors.black,offset: Offset(0,10),
-                    blurRadius: 10
-                ),
-              ]
           ),
           child: contentBox(context),
         ),
       ),
     ) : contentBox(context);
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+    _deviceIp?.dispose();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    Device.deviceIp.stream.listen((event) {
+      if(mounted){
+        setState(() {
+          _deviceIp.text = event;
+        });
+      }
+    });
   }
 
   Container contentBox(BuildContext context){
@@ -53,61 +67,74 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
               Text("Smart Hubs Ip Address",
                   style: TextStyle(
                       fontFamily: "Poppins",
-                      fontSize: 26)),
+                      fontSize: 20)),
               TextField(
                 onChanged: (text){
                   if(mounted){
                     setState(() {
                       _deviceip = text.isEmpty;
+                      _errorText = _errors[0];
                     });
                   }
                 },
                 controller: _deviceIp,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp(r'^\-?\d*\.?\d*\.?\d*\.?\d*')),
+                ],
                 decoration: InputDecoration(
                   hintText: "Enter Smart Hubs Ip Address",
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
-                  errorText: _deviceip ? 'Ip Address Can\'t Be Empty' : null,
+                  errorText: _deviceip ? _errorText : null,
                   errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
                 ),
               ),
               SizedBox(
                 height: 20,
               ),
-              Text("Smart Hubs Port",
-                  style: TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 26)),
-              TextFormField(
-                onChanged: (text){
-                  if(mounted){
-                    setState(() {
-                      _deviceport = text.isEmpty;
-                    });
-                  }
-                },
-                controller: _devicePort,
-                decoration: InputDecoration(
-                  hintText: "Enter Smart Hubs Port",
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
-                  errorText: _deviceport ? 'Port Can\'t Be Empty' : null,
-                  errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
-                ),
-              ),
+              //Text('Port is 443 By Default For Increased Security', style: TextStyle(fontSize: 20, fontFamily: 'Poppins')),
             ],
           ),
           SizedBox(height: 20),
           InkWell(
             onTap: () {
-              if(_devicePort.text.isNotEmpty && _deviceIp.text.isNotEmpty) {
-
-                Device.setDeviceIp(_deviceIp.text);
-                Device.setDevicePort(_devicePort.text);
-                Device.setFirstSetUp(false);
-
+              if(_deviceIp.text.isNotEmpty) {
                 if(this.widget.firstSetUp){
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => FirstSetUpCreds(firstSetUp: true)));
+                  if(!RegExp(r'^\-?\d*\.?\d*\.?\d*\.?\d*').hasMatch(_deviceIp.text)){
+                      if(mounted){
+                        setState(() {
+                          _deviceip = true;
+                          _errorText = _errors[1];
+                        });
+                      }
+                  }else{
+                    showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return ConnectingDialog();
+                        }
+                    );
+
+                    RoomControlsApi.hubExists(_deviceIp.text).then((value){
+                      if(value is String){
+                        if(Navigator.canPop(context))Navigator.pop(context);
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return InfoDialog(title: 'Hub Not Found',description: 'The Hub Could Not Be Reached With This Ip Address');
+                            }
+                        );
+                      }else{
+                        Device.setDeviceIp(_deviceIp.text);
+                        Device.setFirstSetUp(false);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => FirstSetUpCreds(firstSetUp: true)));
+                          }
+                    });
+                  }
                 } else {
+                  Device.setDeviceIp(_deviceIp.text);
+                  Device.setFirstSetUp(false);
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -115,30 +142,19 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
                       }
                   );
                 }
-
               } else {
-
-                if(_devicePort.text.isEmpty){
-                  if(mounted){
-                    setState(() {
-                      _deviceport = true;
-                    });
-                  }
-                }
-
                 if(_deviceIp.text.isEmpty){
                   if(mounted){
                     setState(() {
                       _deviceip = true;
+                      _errorText = _errors[0];
                     });
                   }
                 }
-
               }
-
             },
             child: Container(
-              width: 450,
+              width: 350,
               height: 60,
               child: Center(
                 child: Text(this.widget.firstSetUp ? "Next" : "Save",
@@ -146,7 +162,36 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontFamily: "Poppins-Bold",
-                        fontSize: 30,
+                        fontSize: 20,
+                        letterSpacing: 1.0)),
+              ),
+              decoration: BoxDecoration(
+                  color: kPrimaryColor,
+                  borderRadius: BorderRadius.circular(6.0),
+                  boxShadow: [
+                    BoxShadow(
+                        color: kActiveShadowColor,
+                        offset: Offset(0.0, 8.0),
+                        blurRadius: 8.0)
+                  ]),
+
+            ),
+          ),
+          SizedBox(height: 10),
+          InkWell(
+            onTap: () {
+              _openFile();
+            },
+            child: Container(
+              width: 350,
+              height: 60,
+              child: Center(
+                child: Text("Set Up With File",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "Poppins-Bold",
+                        fontSize: 20,
                         letterSpacing: 1.0)),
               ),
               decoration: BoxDecoration(
@@ -164,6 +209,19 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
         ],
       ),
     );
+  }
+
+  void _openFile() async{
+    FilePickerResult result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      File file = File(result.files.single.path);
+
+      FileUtils.readCounter(fl: file);
+
+    } else {
+      // User canceled the picker
+    }
   }
 
 }
