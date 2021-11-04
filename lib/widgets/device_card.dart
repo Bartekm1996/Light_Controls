@@ -159,7 +159,8 @@ class _DeviceCard extends State<DeviceCard>{
     return Card(
       child: InkWell(
         onTap: (){
-          RoomControlsApi.setState(this.widget.thing.label.replaceAll(" ", ""), this.widget.thing.action, _on);
+          var js = _on ? (this.widget.thing.action == 'Power' ? 'OFF' : this.widget.thing.action == 'Brightness' ? 0 : '0.0,0,0') : (this.widget.thing.action == 'Power' ? 'ON' : this.widget.thing.action == 'Brightness' ? 100 : '0.0,0,100');;
+          RoomControlsApi.setState(this.widget.thing.label.replaceAll(" ", ""), this.widget.thing.action, js);
         },
         onLongPress: (){
           showDialog(
