@@ -24,6 +24,7 @@ class InfoDialog extends StatelessWidget {
 
   Container contentBox(BuildContext context){
     return Container(
+      height: 175,
       width: 300,
       padding: EdgeInsets.all(10),
       margin: EdgeInsets.only(top: 10),
@@ -48,6 +49,8 @@ class InfoDialog extends StatelessWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   TextButton(
                       onPressed: (){

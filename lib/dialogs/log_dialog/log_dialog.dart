@@ -97,11 +97,13 @@ class _LogDialog extends State<LogDialog>{
           InkWell(
             onTap: () {
               showDialog(
+                  barrierDismissible: false,
                   context: context,
                   builder: (BuildContext context) {
                     return InfoDialog(title: "Delete Logs", description: 'Are You Sure To Delete Logs', cancelButton: true);
                   }
               ).then((value) {
+
                 if(value) {
                   _textEditingController.clear();
 
