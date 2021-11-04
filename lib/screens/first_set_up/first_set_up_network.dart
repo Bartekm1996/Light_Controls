@@ -12,11 +12,15 @@ class FirstSetUpNetwork extends StatefulWidget{
 
 class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
 
+
   TextEditingController _deviceIp = new TextEditingController(text: Device.getDeviceIp());
 
   List<String> _errors = ['Ip Address Can\'t Be Empty', 'Invalid Ip Address'];
   String _errorText = "";
   bool _deviceip = false;
+
+  String _userName = '';
+  String _passWord = '';
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +56,23 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
         });
       }
     });
+
+    FirstSetUpCreds.passWordController.stream.listen((event) {
+      setState(() {
+        _passWord = event;
+      });
+    });
+
+    FirstSetUpCreds.userNameController.stream.listen((event) {
+      setState(() {
+        _userName = event;
+      });
+    });
   }
 
   Container contentBox(BuildContext context){
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(this.widget.firstSetUp ? 20 : 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -134,6 +150,8 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
                   }
                 } else {
                   Device.setDeviceIp(_deviceIp.text);
+                  Device.setUserName(_userName);
+                  Device.setPassWord(_passWord);
                   Device.setFirstSetUp(false);
                   showDialog(
                       context: context,

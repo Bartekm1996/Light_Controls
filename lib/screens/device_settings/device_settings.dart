@@ -50,58 +50,29 @@ class _DeviceSettings extends State<DeviceSettings> with SingleTickerProviderSta
             ),
           ]
       ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            child: NavigationRail(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (int index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              labelType: NavigationRailLabelType.selected,
-              destinations: [
-                NavigationRailDestination(
-                  icon: Icon(Icons.network_check_rounded),
-                  label: Text('Network'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.person),
-                  label: Text('Credentials'),
-                ),
-              ],
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(padding),
+        ),
+        padding: EdgeInsets.all(padding),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              Container(
+                child: FirstSetUpCreds(firstSetUp: false),
+                width: 350,
+              ),
+              Container(
+                child: FirstSetUpNetwork(firstSetUp: false),
+                width: 350,
+              ),
+
+            ],
           ),
-          VerticalDivider(thickness: 1, width: 1),
-          Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(padding),
-                ),
-                padding: EdgeInsets.all(padding),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Column(
-                    children: [
-                      if(_selectedIndex == 0)
-                        Container(
-                          child: FirstSetUpNetwork(firstSetUp: false),
-                          width: 350,
-                        ),
-                      if(_selectedIndex == 1)
-                        Container(
-                          child: FirstSetUpCreds(firstSetUp: false),
-                          width: 350,
-                        ),
-                    ],
-                  ),
-                ),
-              )
-          ),
-        ],
+        ),
       ),
     );
   }

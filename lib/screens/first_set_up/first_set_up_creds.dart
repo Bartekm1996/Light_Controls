@@ -2,6 +2,9 @@ part of screens;
 
 class FirstSetUpCreds extends StatefulWidget{
 
+  static StreamController userNameController = new StreamController<String>.broadcast();
+  static StreamController passWordController = new StreamController<String>.broadcast();
+
   bool firstSetUp = false;
 
   FirstSetUpCreds({this.firstSetUp});
@@ -11,6 +14,7 @@ class FirstSetUpCreds extends StatefulWidget{
 }
 
 class _FirstSetUpCreds extends State<FirstSetUpCreds>{
+
 
   TextEditingController _passWord = new TextEditingController(text: Device.getPassWord());
   TextEditingController _userName = new TextEditingController(text: Device.getUserName());
@@ -42,6 +46,8 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
     super.dispose();
     _passWord?.dispose();
     _userName?.dispose();
+    FirstSetUpCreds.passWordController?.close();
+    FirstSetUpCreds.userNameController?.close();
   }
 
   @override
@@ -66,7 +72,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
 
   Container contentBox(BuildContext context){
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.all(this.widget.firstSetUp ? 20 : 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -85,6 +91,10 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
                       _username = text.isEmpty;
                     });
                   }
+
+                  if(!this.widget.firstSetUp){
+                    FirstSetUpCreds.userNameController.sink.add(text);
+                  }
                 },
                 controller: _userName,
                 decoration: InputDecoration(
@@ -100,13 +110,17 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
               Text("Password",
                   style: TextStyle(
                       fontFamily: "Poppins",
-                      fontSize: 26)),
+                      fontSize: 20)),
               TextFormField(
                 onChanged: (text){
                   if(mounted){
                     setState(() {
                       _password = text.isEmpty;
                     });
+                  }
+
+                  if(!this.widget.firstSetUp){
+                    FirstSetUpCreds.passWordController.sink.add(text);
                   }
                 },
                 controller: _passWord,
@@ -139,7 +153,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
               ),
             ],
           ),
-
+          if(this.widget.firstSetUp)
           InkWell(
             onTap: () {
               if(_passWord.text.isNotEmpty && _userName.text.isNotEmpty) {
@@ -147,17 +161,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
                 Device.setPassWord(_passWord.text);
                 Device.setUserName(_userName.text);
 
-                if(this.widget.firstSetUp){
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => MainScreen()));
-                }else {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return InfoDialog(title: 'Data Save',description: 'Data Has Been Save Successfully');
-                      }
-                  );
-                }
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainScreen()));
 
               } else {
 
