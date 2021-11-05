@@ -59,7 +59,7 @@ class _ExceptionCatcher extends State<ExceptionCatcher>{
               SizedBox(width: 10),
               TextButton(
                   onPressed: (){
-                    Navigator.pop(context, true);
+                    EmailUtils.sendEmail(this.widget.exception, this.widget.stackTrace);
                   },
                   child: Text("Send Report",style: TextStyle(fontSize: 18),)),
             ],

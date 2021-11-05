@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:catcher/catcher.dart';
 import 'package:http/http.dart' as http;
 import 'package:lightscontrol/models/thing.dart';
 import 'package:lightscontrol/models/asset.dart';
