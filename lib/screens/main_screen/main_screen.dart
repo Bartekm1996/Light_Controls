@@ -24,7 +24,6 @@ class _MainScreen extends State<MainScreen>{
           break;
         case DataConnectionStatus.disconnected:
           showDialog(
-              barrierDismissible: false,
               context: context,
               builder: (BuildContext context) {
                 return ConnectivityDialog();
@@ -33,6 +32,17 @@ class _MainScreen extends State<MainScreen>{
           break;
       }
     });
+
+    if(Platform.isLinux) {
+      Watcher(
+          '/home/pi/Flutter/lightscontrol/creds.txt')
+          .events.listen((event) {
+        if (event.type == ChangeType.MODIFY) {
+          FileUtils.readCounter(File(event.path));
+        }
+      });
+    }
+
   }
 
   @override
@@ -124,7 +134,6 @@ class _MainScreen extends State<MainScreen>{
               ),
               flex: 1,
             ),
-
             Container(
               child: ElevatedButton(
                 onPressed: () {
@@ -173,148 +182,6 @@ class _MainScreen extends State<MainScreen>{
                   child: _lightLayout,
                 ),
                 SizedBox(width: 30),
-                Container(
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      /*
-                      InkWell(
-                        onTap: () {
-                          RoomControlsApi.setAllDevicesState('ON');
-                        },
-                        child: Container(
-                          width: _buttonWidth,
-                          height: _buttonHeight,
-                          decoration: BoxDecoration(
-                              color: Colors.green.shade800,
-                              borderRadius: BorderRadius.circular(6.0),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: kActiveShadowColor,
-                                    offset: Offset(0.0, 8.0),
-                                    blurRadius: 8.0)
-                              ]
-                          ),
-                          child:Align(
-                            alignment: Alignment.center,
-                            child: Text("Turn On Lights",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: "Poppins-Bold",
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    letterSpacing: 1.0)),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      InkWell(
-                        onTap: () {
-                          RoomControlsApi.setAllDevicesState('OFF');
-                        },
-                        child: Container(
-                          width: _buttonWidth,
-                          height: _buttonHeight,
-                          decoration: BoxDecoration(
-                              color: Colors.red.shade800,
-                              borderRadius: BorderRadius.circular(6.0),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: kActiveShadowColor,
-                                    offset: Offset(0.0, 8.0),
-                                    blurRadius: 8.0)
-                              ]
-                          ),
-                          child:Align(
-                            alignment: Alignment.center,
-                            child: Text("Turn Off Lights",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: "Poppins-Bold",
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    letterSpacing: 1.0)),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      InkWell(
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return LightTemp(things: this._lights);
-                              }
-                          );
-                        },
-                        child: Container(
-                          width: _buttonWidth,
-                          height: _buttonHeight,
-                          decoration: BoxDecoration(
-                              color: kPrimaryColor,
-                              borderRadius: BorderRadius.circular(6.0),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: kActiveShadowColor,
-                                    offset: Offset(0.0, 8.0),
-                                    blurRadius: 8.0)
-                              ]
-                          ),
-                          child:Align(
-                            alignment: Alignment.center,
-                            child: Text("Dim Lights",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: "Poppins-Bold",
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    letterSpacing: 1.0)),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      InkWell(
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return LightColor(things: this._lights);
-                              }
-                          );
-                        },
-                        child: Container(
-                          width: _buttonWidth,
-                          height: _buttonHeight,
-                          decoration: BoxDecoration(
-                              color: kPrimaryColor,
-                              borderRadius: BorderRadius.circular(6.0),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: kActiveShadowColor,
-                                    offset: Offset(0.0, 8.0),
-                                    blurRadius: 8.0)
-                              ]
-                          ),
-                          child:Align(
-                            alignment: Alignment.center,
-                            child: Text("Set Lights Color",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: "Poppins-Bold",
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    letterSpacing: 1.0)),
-                          ),
-                        ),
-                      ),
-                      */
-                    ],
-                  ),
-                ),
               ],
             ),
           ],

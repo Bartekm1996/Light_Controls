@@ -15,7 +15,7 @@ class SqlUtils{
     var db = await databaseFactory.openDatabase(inMemoryDatabasePath);
 
     await db.execute('''
-      CREATE TABLE $tableId (
+      CREATE TABLE IF NOT EXISTS $tableId (
           id INTEGER PRIMARY KEY,
           timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
           payload TEXT
@@ -50,7 +50,8 @@ class SqlUtils{
     var db = await databaseFactory.openDatabase(inMemoryDatabasePath);
     try {
       result = await db.query(dB);
-    }catch(e){
+    }catch (error,stackTrace) {
+      ExceptionCatcher(error, stackTrace.toString());
     }
 
     return result;

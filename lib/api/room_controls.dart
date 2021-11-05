@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:catcher/catcher.dart';
 import 'package:http/http.dart' as http;
 import 'package:lightscontrol/models/thing.dart';
 import 'package:lightscontrol/models/asset.dart';
 import 'package:lightscontrol/models/device.dart';
+import 'package:lightscontrol/utils/utils.dart';
 
 
 class RoomControlsApi{
@@ -53,8 +55,8 @@ class RoomControlsApi{
         _asset = new Asset(js['label'], js['properties']['vendorName'] ?? js['properties']['vendor'], js['properties']['productName'] ?? '',  js['properties']['productId'] ?? js['properties']['modelId'], js['statusInfo']['status'], js['statusInfo']['statusDetail'], statusDescription: js['statusInfo']['description'] != null ? js['statusInfo']['description'] : null);
       }
 
-    }catch(e){
-
+    }catch(error,stackTrace) {
+      ExceptionCatcher(error, stackTrace.toString());
     }
 
     return _asset;
@@ -103,8 +105,10 @@ class RoomControlsApi{
           }
         }
       }
-    }catch(e){
-
+    } on FormatException catch(e){
+      ExceptionCatcher('Format Exception', e.message.toString());
+    } catch(error,stackTrace) {
+      ExceptionCatcher(error, stackTrace.toString());
     }
 
     return devices;

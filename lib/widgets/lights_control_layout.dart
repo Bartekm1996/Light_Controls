@@ -18,6 +18,13 @@ class _LightControlLayout extends State<LightControlLayout>{
   @override
   void initState() {
     super.initState();
+
+    Device.deviceIp.stream.listen((event) {
+      if(mounted){
+        getThings();
+      }
+    });
+
     getThings();
   }
 
@@ -26,7 +33,7 @@ class _LightControlLayout extends State<LightControlLayout>{
     RoomControlsApi.getThingsByType().then((value) {
       try {
         if (value['error'] != null) {
-          if (value['error']['http-code'] == 401) {
+          if (value['error']['http-code'] == 401 || value['error']['http-code'] == 404) {
             showDialog(
                 context: context,
                 builder: (BuildContext context) {

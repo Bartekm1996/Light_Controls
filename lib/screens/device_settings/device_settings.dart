@@ -61,6 +61,12 @@ class _DeviceSettings extends State<DeviceSettings> with SingleTickerProviderSta
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
+              if(Platform.isLinux)
+                Text("To Configure Lights Control Edit The Config Following File /home/pi/Flutter/lightscontrol/creds.txt",
+                    style: TextStyle(
+                        fontFamily: "Poppins",
+                        fontSize: 18)),
+              SizedBox(height: 10),
               Container(
                 child: FirstSetUpCreds(firstSetUp: false),
                 width: 350,

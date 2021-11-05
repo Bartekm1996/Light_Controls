@@ -53,8 +53,8 @@ class _DeviceCard extends State<DeviceCard>{
               .thing.action == 'Brightness' ? int.parse(value) > 0 : int.parse(
               value.split(',')[2]) > 0);
         });
-      }catch(e){
-
+      }catch (error,stackTrace) {
+        ExceptionCatcher(error, stackTrace.toString());
       }
     });
 
@@ -66,8 +66,8 @@ class _DeviceCard extends State<DeviceCard>{
               ? value['statusInfo']['description']
               : value['statusInfo']['statusDetail'];
         });
-      }catch(e){
-
+      }catch (error,stackTrace) {
+        ExceptionCatcher(error, stackTrace.toString());
       }
     });
 
@@ -95,8 +95,8 @@ class _DeviceCard extends State<DeviceCard>{
             (jsonDecode(jsonDecode((message as html.MessageEvent)
                 .data as String)['payload'])['statusDetail']);
 
-          }catch(e){
-
+          }catch (error,stackTrace) {
+            ExceptionCatcher(error, stackTrace.toString());
           }
         });
 
@@ -131,8 +131,8 @@ class _DeviceCard extends State<DeviceCard>{
                 .thing
                 .action == 'Brightness' ? int.parse(js) > 0 : int.parse(
                 js.split(',')[2]) > 0);
-          }catch(e){
-
+          }catch (error,stackTrace) {
+            ExceptionCatcher(error, stackTrace.toString());
           }
         });
 

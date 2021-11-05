@@ -13,8 +13,8 @@ class FileUtils {
     try {
       final path = await _localPath;
       return File('$path/tmp.txt');
-    }catch(FileSystemException){
-
+    }catch (error,stackTrace) {
+      ExceptionCatcher(error, stackTrace.toString());
     }
   }
 
@@ -43,8 +43,8 @@ class FileUtils {
           }
       );
 
-    } catch (e) {
-
+    } catch (error,stackTrace) {
+      ExceptionCatcher(error, stackTrace.toString());
     }
   }
 

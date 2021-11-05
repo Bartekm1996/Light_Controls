@@ -46,8 +46,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
     super.dispose();
     _passWord?.dispose();
     _userName?.dispose();
-    FirstSetUpCreds.passWordController?.close();
-    FirstSetUpCreds.userNameController?.close();
+
   }
 
   @override
@@ -153,7 +152,7 @@ class _FirstSetUpCreds extends State<FirstSetUpCreds>{
               ),
             ],
           ),
-          if(this.widget.firstSetUp)
+          if(this.widget.firstSetUp && !Platform.isLinux)
           InkWell(
             onTap: () {
               if(_passWord.text.isNotEmpty && _userName.text.isNotEmpty) {

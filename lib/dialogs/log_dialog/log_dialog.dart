@@ -33,8 +33,8 @@ class _LogDialog extends State<LogDialog>{
             });
           }
         }
-      }catch(e){
-
+      }catch(error,stackTrace) {
+        ExceptionCatcher(error, stackTrace.toString());
       }
     });
   }

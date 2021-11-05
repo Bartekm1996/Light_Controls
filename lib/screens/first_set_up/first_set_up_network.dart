@@ -111,7 +111,8 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
             ],
           ),
           SizedBox(height: 20),
-          InkWell(
+          if(!Platform.isLinux)
+            InkWell(
             onTap: () {
               if(_deviceIp.text.isNotEmpty) {
                 if(this.widget.firstSetUp){
@@ -150,8 +151,8 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
                   }
                 } else {
                   Device.setDeviceIp(_deviceIp.text);
-                  Device.setUserName(_userName);
-                  Device.setPassWord(_passWord);
+                  if(_userName.isNotEmpty)Device.setUserName(_userName);
+                  if(_userName.isNotEmpty)Device.setPassWord(_passWord);
                   Device.setFirstSetUp(false);
                   showDialog(
                       context: context,
@@ -196,6 +197,7 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
             ),
           ),
           SizedBox(height: 10),
+          if(!Platform.isLinux)
           InkWell(
             onTap: () {
               _openFile();
@@ -204,7 +206,7 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
               width: 350,
               height: 60,
               child: Center(
-                child: Text("Set Up With File",
+                child: Text(this.widget.firstSetUp ? "Set Up With File" : "Config With File",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -224,6 +226,7 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
 
             ),
           ),
+
         ],
       ),
     );
