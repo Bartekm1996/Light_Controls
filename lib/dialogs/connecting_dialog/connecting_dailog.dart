@@ -35,7 +35,9 @@ class ConnectingDialog extends StatelessWidget{
         children: <Widget>[
           Text('Connecting To Smart Hub', style: TextStyle(fontSize: 22,fontWeight: FontWeight.w600),),
           SizedBox(height: 20),
-          SpinKitFadingCircle(),
+          SpinKitFadingCircle(
+            color: Colors.white,
+          ),
         ],
       ),
     );

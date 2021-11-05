@@ -61,9 +61,6 @@ class _LightControlLayout extends State<LightControlLayout>{
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if(_lights.isEmpty)
-            Align(child: Text('No Bulbs Added\n\nCheck If OpenHab Hub Is Reachable', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Poppins', fontSize: 20)), alignment: Alignment.center),
-          if(_lights.isNotEmpty)
             SingleChildScrollView(
               controller: _scrollController,
               child: Column(
@@ -79,7 +76,9 @@ class _LightControlLayout extends State<LightControlLayout>{
                         ),
                       ),
                     ),
-                  if(_initialized)
+                  if(_initialized && _lights.isEmpty)
+                  Align(child: Text('No Bulbs Added\n\nCheck If OpenHab Hub Is Reachable', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'Poppins', fontSize: 20)), alignment: Alignment.center),
+                  if(_initialized && _lights.isNotEmpty)
                     Container(
                       width: 400,
                       child:  GridView.count(

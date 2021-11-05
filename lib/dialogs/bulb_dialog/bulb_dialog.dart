@@ -4,8 +4,9 @@ class BulbDialog extends StatefulWidget{
 
   Thing thing;
   Asset asset;
+  bool on = false;
 
-  BulbDialog({this.thing, this.asset});
+  BulbDialog({this.thing, this.asset, this.on});
 
 
   @override
@@ -46,7 +47,7 @@ class _BulbDialog extends State<BulbDialog>{
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb_outline, size: 100),
+              Icon(Icons.lightbulb_outline, size: 100, color: this.widget.on ? Colors.yellow.shade800 : Colors.black),
               SizedBox(width: 20),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

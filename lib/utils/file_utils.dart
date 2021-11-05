@@ -23,7 +23,7 @@ class FileUtils {
     return directory.path;
   }
 
-  static Future<dynamic> readCounter({File fl}) async {
+  static Future<dynamic> readCounter(File fl) async {
 
     try {
 

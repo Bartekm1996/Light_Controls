@@ -166,7 +166,7 @@ class _DeviceCard extends State<DeviceCard>{
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return BulbDialog(thing: this.widget.thing, asset: _asset);
+                return BulbDialog(thing: this.widget.thing, asset: _asset, on: _on);
               }
           );
         },

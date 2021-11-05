@@ -233,10 +233,7 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
     FilePickerResult result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
-      File file = File(result.files.single.path);
-
-      FileUtils.readCounter(fl: file);
-
+      FileUtils.readCounter(File(result.files.single.path));
     } else {
       // User canceled the picker
     }

@@ -24,7 +24,7 @@ class _LogDialog extends State<LogDialog>{
         if(value != null) {
 
           for (var i = 0; i < value.length; i++) {
-            _txt = (_txt + value[i]['timestamp']+ ' : \t' + jsonDecode(value[i]['payload']).toString() + '\n\n');
+            _txt = (_txt + value[i]['timestamp']+ ' : ' + jsonDecode(value[i]['payload']).toString() + '\n\n');
           }
 
           if (mounted) {
