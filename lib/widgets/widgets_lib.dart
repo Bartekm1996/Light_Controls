@@ -3,7 +3,6 @@ library widgets;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
-import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lightscontrol/utils/utils.dart';

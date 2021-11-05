@@ -3,7 +3,6 @@ library utils;
 import 'dart:io';
 import 'dart:ui';
 import 'dart:convert';
-import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:sendgrid_mailer/sendgrid_mailer.dart';
 import 'package:sqflite_common/sqlite_api.dart';

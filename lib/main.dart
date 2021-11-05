@@ -1,4 +1,3 @@
-import 'package:catcher/catcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lightscontrol/utils/utils.dart';
@@ -21,8 +20,8 @@ void main() {
   sqfliteFfiInit();
 
   if(Platform.isWindows || Platform.isMacOS) {
-    setWindowMaxSize(Size(800, 500));
-    setWindowMinSize(Size(800, 500));
+    setWindowMaxSize(Size(900, 600));
+    setWindowMinSize(Size(900, 600));
   }
 
   if(Platform.isLinux) {
@@ -56,7 +55,6 @@ class _MyApp extends State<MyApp>{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: Catcher.navigatorKey,
       title: 'Lights Control',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

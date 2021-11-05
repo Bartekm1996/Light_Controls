@@ -93,12 +93,13 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
                     });
                   }
                 },
+                keyboardType: TextInputType.number,
                 controller: _deviceIp,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.allow(RegExp(r'^\-?\d*\.?\d*\.?\d*\.?\d*')),
                 ],
                 decoration: InputDecoration(
-                  hintText: "Enter Smart Hubs Ip Address",
+                  hintText: "Enter Smart Hubs Ip Address Format eg. 127.0.0.1",
                   hintStyle: TextStyle(color: Colors.grey, fontSize: 12.0),
                   errorText: _deviceip ? _errorText : null,
                   errorStyle: TextStyle(color: Colors.red, fontSize: 12.0),
@@ -197,49 +198,9 @@ class _FirstSetUpNetwork extends State<FirstSetUpNetwork>{
             ),
           ),
           SizedBox(height: 10),
-          if(!Platform.isLinux)
-          InkWell(
-            onTap: () {
-              _openFile();
-            },
-            child: Container(
-              width: 350,
-              height: 60,
-              child: Center(
-                child: Text(this.widget.firstSetUp ? "Set Up With File" : "Config With File",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: "Poppins-Bold",
-                        fontSize: 20,
-                        letterSpacing: 1.0)),
-              ),
-              decoration: BoxDecoration(
-                  color: kPrimaryColor,
-                  borderRadius: BorderRadius.circular(6.0),
-                  boxShadow: [
-                    BoxShadow(
-                        color: kActiveShadowColor,
-                        offset: Offset(0.0, 8.0),
-                        blurRadius: 8.0)
-                  ]),
-
-            ),
-          ),
-
         ],
       ),
     );
-  }
-
-  void _openFile() async{
-    FilePickerResult result = await FilePicker.platform.pickFiles();
-
-    if (result != null) {
-      FileUtils.readCounter(File(result.files.single.path));
-    } else {
-      // User canceled the picker
-    }
   }
 
 }
